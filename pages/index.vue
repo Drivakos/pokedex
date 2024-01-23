@@ -1,21 +1,20 @@
 <template>
   <div>
     <h1>Generation 1 Pokémon</h1>
-    <ul>
-      <li v-for="pokemon in pokemonEntries.results" :key="pokemon.name">
-        {{ pokemon.name }}
-        <button @click="fetchPokemonDetails(pokemon)">Fetch Details</button>
-        <div v-if="pokemonDetails[pokemon.name]" class="pokemonCardWrapper">
-          {{ pokemonDetails[pokemon.name].name }} - {{ pokemonDetails[pokemon.name].height }}
-          <nuxt-img
-            :src="pokemonDetails[pokemon.name].sprites.front_default"
-            :alt="pokemonDetails[pokemon.name].name"
-            width="100"
-            height="100"
-          />
+    <div v-if="loading">Loading...</div>
+    <div v-else>
+      <div class="pokemon-container-wrapper">
+        <div class="pokemon-card-wrapper" v-for="pokemon in pokemonEntries.results" :key="pokemon.name">
+          <a :href="`/pokemon/${pokemon.name}`">
+            {{ pokemon.name }}
+            <div v-if="pokemonDetails[pokemon.name]" class="pokemonCardWrapper">
+              <nuxt-img :src="pokemonDetails[pokemon.name].sprites.front_default"
+                        :alt="pokemonDetails[pokemon.name].name" width="100" height="100"/>
+            </div>
+          </a>
         </div>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -26,25 +25,31 @@ export default {
       pokemonEntries: { results: [] },
       pokemonDetails: {},
       loading: true,
+      error: null,
     };
   },
-  mounted() {
+  created() {
     this.fetchData();
   },
   methods: {
     async fetchData() {
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
+        //limit=151
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=3');
         this.pokemonEntries = await response.json();
+      //TODO: Refactor cause not optimal for large data sets
+        for (const pokemon of this.pokemonEntries.results) {
+          await this.fetchPokemonDetails(pokemon);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
+        this.error = 'Error fetching data. Please try again.';
       } finally {
         this.loading = false;
       }
     },
     async fetchPokemonDetails(pokemon) {
       const pokemonName = pokemon.name;
-
 
       if (this.pokemonDetails[pokemonName]) {
         console.log('Using cached details for', this.pokemonDetails[pokemonName]);
@@ -59,6 +64,7 @@ export default {
         this.cachePokemonDetails(pokemonName, pokemonDetails);
       } catch (error) {
         console.error('Error fetching Pokémon details:', error);
+        this.error = 'Error fetching Pokémon details. Please try again.';
       }
     },
     cachePokemonDetails(name, details) {
@@ -73,7 +79,5 @@ export default {
 </script>
 
 <style scoped>
-.pokemonCardWrapper {
-
-}
+/* Add your styles here */
 </style>
