@@ -3,18 +3,20 @@
     <h1>Generation 1 Pokémon</h1>
     <div v-if="loading">Loading...</div>
     <div v-else class="pokemon-container-wrapper">
-      <div class="pokemon-wrapper" v-if="filteredPokemon">
+      <div class="pokemon-wrapper" v-if="filteredPokemon && filteredPokemon.length > 0">
         <PokemonCard v-for="pokemon in filteredPokemon"
                      :key="pokemon.name"
                      :pokemon="pokemon"
                      :details="pokemonDetails[pokemon.name]"/>
       </div>
+      <div v-else-if="filteredPokemon.length === 0">No results found.</div>
       <div class="pokemon-wrapper" v-else>
         <PokemonCard v-for="pokemon in pokemonEntries.results"
                      :key="pokemon.name"
                      :pokemon="pokemon"
                      :details="pokemonDetails[pokemon.name]"/>
       </div>
+
       <div class="filters-wrapper">
         <div
             class="type-icon"
@@ -49,7 +51,7 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=4');
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=32');
         this.pokemonEntries = await response.json();
         await this.fetchPokemonDetails();
       } catch (error) {
@@ -94,9 +96,8 @@ export default {
         return this.pokemonEntries.results;
       } else {
         return this.pokemonEntries.results.filter((pokemon) => {
-          return this.selectedType.some((type) =>
-              this.pokemonDetails[pokemon.name].types.some((pokemonType) => pokemonType.type.name === type)
-          );
+          const pokemonTypeNames = this.pokemonDetails[pokemon.name].types.map((type) => type.type.name);
+          return this.selectedType.every((type) => pokemonTypeNames.includes(type));
         });
       }
     }
@@ -114,6 +115,7 @@ export default {
   grid-gap: 10px;
   justify-items: center;
   align-items: center;
+  height: fit-content;
 }
 
 .pokemon-container-wrapper {
