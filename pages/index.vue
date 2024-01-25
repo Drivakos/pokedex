@@ -3,7 +3,13 @@
     <h1>Generation 1 Pokémon</h1>
     <div v-if="loading">Loading...</div>
     <div v-else class="pokemon-container-wrapper">
-      <div class="pokemon-wrapper">
+      <div class="pokemon-wrapper" v-if="filteredPokemon">
+        <PokemonCard v-for="pokemon in filteredPokemon"
+                     :key="pokemon.name"
+                     :pokemon="pokemon"
+                     :details="pokemonDetails[pokemon.name]"/>
+      </div>
+      <div class="pokemon-wrapper" v-else>
         <PokemonCard v-for="pokemon in pokemonEntries.results"
                      :key="pokemon.name"
                      :pokemon="pokemon"
@@ -80,6 +86,19 @@ export default {
     },
     getTypeClass(type) {
       return `type-${type}`;
+    }
+  },
+  computed: {
+    filteredPokemon() {
+      if (this.selectedType.length === 0) {
+        return this.pokemonEntries.results;
+      } else {
+        return this.pokemonEntries.results.filter((pokemon) => {
+          return this.selectedType.some((type) =>
+              this.pokemonDetails[pokemon.name].types.some((pokemonType) => pokemonType.type.name === type)
+          );
+        });
+      }
     }
   },
 };
