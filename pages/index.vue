@@ -69,6 +69,8 @@ export default {
         this.pokemonTypes = await response.json();
       } catch (error) {
         this.error = 'Error fetching data. Please try again.';
+      } finally {
+        this.loading = false;
       }
     },
     setSelectedType(type) {
@@ -111,6 +113,8 @@ export default {
 }
 
 .type-icon {
+  -webkit-user-drag: none;
+  user-select: none;
   box-sizing: border-box;
   cursor: pointer;
   width: 66px;
@@ -119,8 +123,7 @@ export default {
 
   margin-bottom: 4px;
   background: #dbdbdb;
-  border: 1px solid #a3a3a3;
-  border: 1px solid rgba(0, 0, 0, .2);
+  border: 1px solid #00000033;
   color: #fff;
   font-size: .75rem;
   font-weight: normal;
