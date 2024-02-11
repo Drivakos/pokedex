@@ -51,7 +51,7 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=32');
+        const response = await fetch('http://localhost/api/v2/pokemon?limit=32');
         this.pokemonEntries = await response.json();
         await this.fetchPokemonDetails();
       } catch (error) {
@@ -73,7 +73,7 @@ export default {
     },
     async getAllPokemonTypes() {
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/type/');
+        const response = await fetch('http://localhost/api/v2/type/');
         this.pokemonTypes = await response.json();
       } catch (error) {
         this.error = 'Error fetching data. Please try again.';
