@@ -8,7 +8,7 @@
         <span>{{ pokemon.id }}</span>
         <span>{{ pokemon.weight }}</span>
         <pokemon-card
-          :pokemon-id="index.id"
+          :pokemon-id="pokemon.id"
           :pokemon="pokemon.name"
           :details="pokemon"
         />
