@@ -1,28 +1,21 @@
 <template>
   <div class="pokemon-card-wrapper">
     <div v-if="details" class="pokemon-id">
-      #{{ details.id }}
+      #{{ key }}
     </div>
-    <a :href="`/pokemon/${pokemon.name}`">
-      <div v-if="pokemon.name" class="pokemon-card-wrapper-img">
+    <a :href="`/pokemon/${pokemon}`">
+      <div v-if="pokemon" class="pokemon-card-wrapper-img">
         <nuxt-img
-            v-if="getPokemonImage(pokemon.name)"
-            :src="getPokemonImage(pokemon.name)"
-            :alt="pokemon.name"
-            width="150"
-            height="150"
-        />
-        <nuxt-img
-            v-else
-            :src="details.sprites.front_default"
-            :alt="pokemon.name"
+            v-if="getPokemonImage(pokemon)"
+            :src="getPokemonImage(pokemon)"
+            :alt="pokemon"
             width="150"
             height="150"
         />
       </div>
-      <div class="card-particle" :class="getParticleClass(pokemon.name)"></div>
+      <div class="card-particle" ></div>
       <div class="card-title">
-        {{ pokemon.name }}
+        {{ pokemon }}
       </div>
     </a>
   </div>
@@ -32,11 +25,15 @@
 export default {
   props: {
     pokemon: {
-      type: Object,
+      type: String,
       required: true,
     },
     details: {
       type: Object,
+      required: true,
+    },
+    key: {
+      type: Number,
       required: true,
     },
   },
