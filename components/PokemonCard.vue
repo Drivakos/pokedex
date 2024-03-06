@@ -1,7 +1,7 @@
 <template>
   <div class="pokemon-card-wrapper">
     <div v-if="details" class="pokemon-id">
-      #{{ key }}
+      #{{ pokemonId }}
     </div>
     <a :href="`/pokemon/${pokemon}`">
       <div v-if="pokemon" class="pokemon-card-wrapper-img">
@@ -13,7 +13,7 @@
             height="150"
         />
       </div>
-      <div class="card-particle" ></div>
+      <div class="card-particle" :class="getParticleClass(pokemon.name)"></div>
       <div class="card-title">
         {{ pokemon }}
       </div>
@@ -32,7 +32,7 @@ export default {
       type: Object,
       required: true,
     },
-    key: {
+    pokemonId: {
       type: Number,
       required: true,
     },
@@ -42,7 +42,7 @@ export default {
       return `https://img.pokemondb.net/sprites/home/normal/${name}.png`;
     },
     getParticleClass(name) {
-      const type = this.details.types[0].type.name;
+      const type = this.details.pokemon_v2_pokemontypes[0].pokemon_v2_type.name;
       return `type-${type}`;
     },
   },
