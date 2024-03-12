@@ -1,8 +1,5 @@
 <template>
   <div>
-    <div>
-      <button v-for="type in pokemonTypes" :key="type" @click="toggleFilter(type)" :class="{ active: selectedTypes.includes(type) }">{{ type }}</button>
-    </div>
     <div class="pokemon-wrapper">
       <p v-if="loading">Loading...</p>
       <p v-else-if="error">Error: {{ error.message }}</p>
@@ -15,6 +12,14 @@
           />
         </div>
       </div>
+      <div class="types-wrapper">
+        <div v-for="type in pokemonTypes"
+             :key="type" @click="toggleFilter(type)"
+             :class="[getTypeClass(type), { active: selectedTypes.includes(type) }]"
+             class="type-icon">
+          {{ type }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -25,6 +30,10 @@ import { ref, computed, onMounted } from 'vue';
 const displayedPokemon = ref([]);
 const selectedTypes = ref([]);
 const pokemonTypes = ref([]);
+
+const getTypeClass = (type: any) => {
+  return `type-${type}`;
+};
 
 const query = gql`
   query MyQuery {
@@ -53,10 +62,9 @@ onMounted(() => {
 });
 
 const filteredPokemon = computed(() => {
-  if (selectedTypes.value.length === 0) {
-    return displayedPokemon.value;
-  } else {
-    return displayedPokemon.value.filter(pokemon =>
+  let filtered = displayedPokemon.value;
+  if (selectedTypes.value.length > 0) {
+    filtered = filtered.filter(pokemon =>
         selectedTypes.value.every(selectedType =>
             pokemon.pokemon_v2_pokemontypes.some(typeObject =>
                 typeObject.pokemon_v2_type.name === selectedType
@@ -64,6 +72,7 @@ const filteredPokemon = computed(() => {
         )
     );
   }
+  return filtered;
 });
 
 function toggleFilter(type) {
@@ -80,28 +89,139 @@ function toggleFilter(type) {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  padding: 20px;
   align-items: center;
   justify-items: center;
+  width: 100%;
+  padding-top: 1rem;
+
   @media screen and (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media screen and (max-width: 480px) {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .pokemon-wrapper {
   display: grid;
+  width: 100%;
   grid-template-columns: 50% 50%;
+  gap: 1rem;
   @media screen and (max-width: 768px) {
     grid-template-columns: 100%;
+    justify-content: center;
   }
 }
 
-button {
-  margin-right: 10px;
+.type-icon {
+  -webkit-user-drag: none;
+  user-select: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 66px;
+  height: 66px;
+  border-radius: 33px;
+
+  margin-bottom: 4px;
+  background: #dbdbdb;
+  border: 1px solid #00000033;
+  color: #fff;
+  font-size: .75rem;
+  font-weight: normal;
+  line-height: 1.5rem;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(30, 30, 30, 0.7);
+  text-transform: uppercase;
+  transition: opacity .4s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    opacity: .8;
+  }
 }
 
-button.active {
-  background-color: #007bff;
-  color: white;
+.type-icon.active {
+  box-shadow: rgb(16 16 16) 0 0 0 3px;
+}
+
+.type-fairy {
+  background-color: #e9e;
+}
+
+.type-psychic {
+  background-color: #f59;
+}
+
+.type-fighting {
+  background-color: #b54;;
+}
+
+.type-ground {
+  background-color: #db5;
+}
+
+.type-rock {
+  background-color: #b26d09;
+}
+
+.type-electric {
+  background-color: #fc3;
+}
+
+.type-normal {
+  background-color: #c9cc99;
+}
+
+.type-grass {
+  background-color: #7c5;
+}
+
+.type-dragon {
+  background-color: #76e;
+}
+
+.type-fire {
+  background-color: #f42;
+}
+
+.type-water {
+  background-color: #39f;
+}
+
+.type-poison {
+  background-color: #7300c5;
+}
+
+.type-ghost {
+  background-color: #66b;
+}
+
+.type-ice {
+  background-color: #6cf;;
+}
+
+.type-bug {
+  background-color: #ab2;
+}
+
+.type-steel {
+  background-color: #a3a3a3;
+}
+
+.type-dark {
+  background-color: #754;
+}
+
+.type-flying {
+  background-color: #89f;
+}
+
+.types-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  height: fit-content;
 }
 </style>
