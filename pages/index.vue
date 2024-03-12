@@ -1,10 +1,7 @@
 <template>
   <div>
     <div>
-      <select v-model="selectedType">
-        <option value="">All Types</option>
-        <option v-for="type in pokemonTypes" :key="type" :value="type">{{ type }}</option>
-      </select>
+      <button v-for="type in pokemonTypes" :key="type" @click="toggleFilter(type)" :class="{ active: selectedTypes.includes(type) }">{{ type }}</button>
     </div>
     <div class="pokemon-wrapper">
       <p v-if="loading">Loading...</p>
@@ -23,17 +20,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watchEffect } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
-const displayLimit = 64;
 const displayedPokemon = ref([]);
-const currentOffset = ref(0);
-const selectedType = ref('');
+const selectedTypes = ref([]);
 const pokemonTypes = ref([]);
 
 const query = gql`
   query MyQuery {
-    pokemon_v2_pokemon(limit: 64) {
+    pokemon_v2_pokemon {
       name
       id
       weight
@@ -46,54 +41,39 @@ const query = gql`
   }
 `;
 
-const { data, loading, error, execute } = useAsyncQuery(query, () => ({
-  limit: displayLimit,
-  offset: currentOffset.value,
-  type: selectedType.value || null, // Pass null if no type is selected
-}));
-
-watchEffect(() => {
-  if (data.value) {
-    displayedPokemon.value = [...displayedPokemon.value, ...data.value.pokemon_v2_pokemon];
-    currentOffset.value += displayLimit;
-    if (selectedType.value === '') {
-      pokemonTypes.value = data.value.pokemon_v2_pokemon.map(pokemon => pokemon.pokemon_v2_pokemontypes.map((type: { pokemon_v2_type: { name: any; }; }) => type.pokemon_v2_type.name)).flat().filter((type, index, self) => self.indexOf(type) === index);
-    }
-  }
-});
-
-function fetchData() {
-  if (!loading.value && !error.value) {
-    execute();
-  }
-}
+const { data, loading, error } = useAsyncQuery(query);
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
-
-function handleScroll() {
-  const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
-  if (scrollTop + clientHeight >= scrollHeight - 100) {
-    fetchData();
+  if (data.value) {
+    displayedPokemon.value = data.value.pokemon_v2_pokemon;
+    pokemonTypes.value = data.value.pokemon_v2_pokemon
+        .flatMap(pokemon => pokemon.pokemon_v2_pokemontypes.map(type => type.pokemon_v2_type.name))
+        .filter((type, index, self) => self.indexOf(type) === index);
   }
-}
+});
 
 const filteredPokemon = computed(() => {
-  if (!selectedType.value) {
+  if (selectedTypes.value.length === 0) {
     return displayedPokemon.value;
   } else {
-    return displayedPokemon.value.filter(pokemon => pokemon && pokemon.pokemon_v2_pokemontypes.some(
-        (type: { pokemon_v2_type: { name: string; }; }) => type.pokemon_v2_type.name === selectedType.value)
+    return displayedPokemon.value.filter(pokemon =>
+        selectedTypes.value.every(selectedType =>
+            pokemon.pokemon_v2_pokemontypes.some(typeObject =>
+                typeObject.pokemon_v2_type.name === selectedType
+            )
+        )
     );
   }
 });
-</script>
 
+function toggleFilter(type) {
+  if (selectedTypes.value.includes(type)) {
+    selectedTypes.value = selectedTypes.value.filter(selectedType => selectedType !== type);
+  } else {
+    selectedTypes.value.push(type);
+  }
+}
+</script>
 
 <style scoped>
 .pokemon-cards-wrapper {
@@ -103,10 +83,25 @@ const filteredPokemon = computed(() => {
   padding: 20px;
   align-items: center;
   justify-items: center;
+  @media screen and (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .pokemon-wrapper {
   display: grid;
   grid-template-columns: 50% 50%;
+  @media screen and (max-width: 768px) {
+    grid-template-columns: 100%;
+  }
+}
+
+button {
+  margin-right: 10px;
+}
+
+button.active {
+  background-color: #007bff;
+  color: white;
 }
 </style>
