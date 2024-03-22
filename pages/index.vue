@@ -1,5 +1,6 @@
 <template>
   <div>
+    <button class="filters-button" @click="toggleFilters">Filters</button>
     <div class="pokemon-wrapper">
       <p v-if="loading">Loading...</p>
       <p v-else-if="error">Error: {{ error.message }}</p>
@@ -12,12 +13,15 @@
           />
         </div>
       </div>
-      <div class="types-wrapper">
-        <div v-for="type in pokemonTypes"
-             :key="type" @click="toggleFilter(type)"
-             :class="[getTypeClass(type), { active: selectedTypes.includes(type) }]"
-             class="type-icon">
-          {{ type }}
+      <div class="filters-wrapper" :class="{ active: sidebarOpen }">
+        <div class="close-button" @click="closeFilters">X</div>
+        <div class="types-wrapper">
+          <div v-for="type in pokemonTypes"
+               :key="type" @click="toggleFilter(type)"
+               :class="[getTypeClass(type), { active: selectedTypes.includes(type) }]"
+               class="type-icon">
+            {{ type }}
+          </div>
         </div>
       </div>
     </div>
@@ -30,6 +34,7 @@ import { ref, computed, onMounted } from 'vue';
 const displayedPokemon = ref([]);
 const selectedTypes = ref([]);
 const pokemonTypes = ref([]);
+const sidebarOpen = ref(false);
 
 const getTypeClass = (type: any) => {
   return `type-${type}`;
@@ -37,7 +42,7 @@ const getTypeClass = (type: any) => {
 
 const query = gql`
   query MyQuery {
-    pokemon_v2_pokemon {
+    pokemon_v2_pokemon(limit:256) {
       name
       id
       weight
@@ -56,8 +61,8 @@ onMounted(() => {
   if (data.value) {
     displayedPokemon.value = data.value.pokemon_v2_pokemon;
     pokemonTypes.value = data.value.pokemon_v2_pokemon
-        .flatMap(pokemon => pokemon.pokemon_v2_pokemontypes.map(type => type.pokemon_v2_type.name))
-        .filter((type, index, self) => self.indexOf(type) === index);
+        .flatMap((pokemon: { pokemon_v2_pokemontypes: { pokemon_v2_type: { name: any; }; }[]; }) => pokemon.pokemon_v2_pokemontypes.map((type: { pokemon_v2_type: { name: any; }; }) => type.pokemon_v2_type.name))
+        .filter((type: any, index: any, self: string | any[]) => self.indexOf(type) === index);
   }
 });
 
@@ -66,7 +71,7 @@ const filteredPokemon = computed(() => {
   if (selectedTypes.value.length > 0) {
     filtered = filtered.filter(pokemon =>
         selectedTypes.value.every(selectedType =>
-            pokemon.pokemon_v2_pokemontypes.some(typeObject =>
+            pokemon.pokemon_v2_pokemontypes.some((typeObject: { pokemon_v2_type: { name: any; }; }) =>
                 typeObject.pokemon_v2_type.name === selectedType
             )
         )
@@ -81,6 +86,14 @@ function toggleFilter(type) {
   } else {
     selectedTypes.value.push(type);
   }
+}
+
+function closeFilters() {
+  sidebarOpen.value = false;
+}
+
+function toggleFilters() {
+  sidebarOpen.value = !sidebarOpen.value;
 }
 </script>
 
@@ -108,7 +121,8 @@ function toggleFilter(type) {
   width: 100%;
   grid-template-columns: 50% 50%;
   gap: 1rem;
-  @media screen and (max-width: 768px) {
+
+  @media screen and (max-width:1200px) {
     grid-template-columns: 100%;
     justify-content: center;
   }
@@ -223,5 +237,50 @@ function toggleFilter(type) {
   flex-wrap: wrap;
   gap: 15px;
   height: fit-content;
+  padding: 25px 0 25px 0;
+}
+
+.filters-wrapper {
+  position: fixed;
+  top:0;
+  left: -100%;
+  height: 100vh;
+  transition: left .4s;
+  background: #ff5858;
+  max-width: clamp(150px, 30vw, 300px);
+  z-index: 2;
+  padding: 30px 15px 15px 15px;
+  overflow-y: auto;
+}
+
+.filters-wrapper.active {
+  left: 0;
+  transition: left .4s;
+}
+.filters-button {
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: #ff5858;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.close-button {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  border: 1px solid black;
+  border-radius: 50%;
+  height: 45px;
+  width: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: floralwhite;
+  cursor: pointer;
 }
 </style>
