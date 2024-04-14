@@ -79,7 +79,7 @@ data() {
       try {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${params.name}`);
         this.pokemonDetails = await response.json();
-        console.log('Fetched details for', params.name, pokemonDetails);
+        const pokemonDetails = this.pokemonDetails;
         return {pokemonDetails};
       } catch (error) {
         console.error('Error fetching Pokémon details:', error);

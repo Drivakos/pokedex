@@ -42,7 +42,7 @@ const getTypeClass = (type: any) => {
 
 const query = gql`
   query MyQuery {
-    pokemon_v2_pokemon(limit:256) {
+   pokemon_v2_pokemon {
       name
       id
       weight
@@ -51,6 +51,8 @@ const query = gql`
           name
         }
       }
+      height
+      pokemon_species_id
     }
   }
 `;
@@ -63,6 +65,9 @@ onMounted(() => {
     pokemonTypes.value = data.value.pokemon_v2_pokemon
         .flatMap((pokemon: { pokemon_v2_pokemontypes: { pokemon_v2_type: { name: any; }; }[]; }) => pokemon.pokemon_v2_pokemontypes.map((type: { pokemon_v2_type: { name: any; }; }) => type.pokemon_v2_type.name))
         .filter((type: any, index: any, self: string | any[]) => self.indexOf(type) === index);
+
+    console.log('Pokemon data:', data.value.pokemon_v2_pokemon);
+    sendPokemonDataToBackend(data.value.pokemon_v2_pokemon);
   }
 });
 
@@ -79,6 +84,40 @@ const filteredPokemon = computed(() => {
   }
   return filtered;
 });
+
+async function sendPokemonDataToBackend(pokemonDataArray) {
+  for (const pokemonData of pokemonDataArray) {
+    console.log('Sending Pokémon data to backend:', JSON.stringify(pokemonData));
+    const requestBody = {
+      name: pokemonData.name,
+      id: pokemonData.id,
+      weight: pokemonData.weight,
+      types: pokemonData.pokemon_v2_pokemontypes.map(typeObject => typeObject.pokemon_v2_type.name),
+      height: pokemonData.height,
+      speciesId: pokemonData.pokemon_species_id
+    };
+
+    try {
+      const response = await fetch('/api/pokemon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send Pokémon data to backend');
+      }
+
+      const responseData = await response.json();
+      console.log('Response from backend:', responseData);
+    } catch (error) {
+      console.error('Error sending Pokémon data to backend:', error);
+    }
+  }
+}
+
 
 function toggleFilter(type) {
   if (selectedTypes.value.includes(type)) {
