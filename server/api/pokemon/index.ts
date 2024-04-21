@@ -28,11 +28,10 @@ export default defineEventHandler(async (event) => {
             weight: weight,
             pokemon_v2_pokemontypes: pokemonTypes,
             id: id,
-            speciesId: id, // Assuming speciesId is the same as id
-            height: 10 // Assuming a default height of 10 for all Pokémon
+            speciesId: speciesId,
+            height: height
         });
 
-        // Saving the new Pokemon to the database
         await newPokemon.save();
 
         return {
