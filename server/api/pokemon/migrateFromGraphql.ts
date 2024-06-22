@@ -5,12 +5,10 @@ export default defineEventHandler(async (event) => {
         const body = await readBody(event);
         console.log('Request body:', body);
 
-        // Check if the body is an object
         if (typeof body !== 'object') {
             throw new Error('Request body is not an object');
         }
 
-        // Extracting relevant fields from the parsed data
         const { name, weight, types, id, height, speciesId,  } = body;
 
         console.log('Extracted fields:', { name, weight, types, id });
@@ -19,10 +17,8 @@ export default defineEventHandler(async (event) => {
             throw new Error('Missing required fields in request data');
         }
 
-        // Assuming that types is an array of strings
         const pokemonTypes = types;
 
-        // Creating a new instance of PokemonModel
         const newPokemon = new PokemonModel({
             name: name,
             weight: weight,
@@ -36,13 +32,13 @@ export default defineEventHandler(async (event) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ message: 'Pokémon saved successfully!' }) // Stringify the response object
+            body: JSON.stringify({ message: 'Pokémon saved successfully!' })
         };
     } catch (error) {
         console.error('Error saving Pokémon:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message || 'Error saving Pokémon' }) // Stringify the error object
+            body: JSON.stringify({ error: error.message || 'Error saving Pokémon' })
         };
     }
 });

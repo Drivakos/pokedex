@@ -41,8 +41,8 @@ export default {
     getPokemonImage(name) {
       return `https://img.pokemondb.net/sprites/home/normal/${name}.png`;
     },
-    getParticleClass(name) {
-      const type = this.details.pokemon_v2_pokemontypes[0].pokemon_v2_type.name;
+    getParticleClass() {
+      const type = this.details.type[0];
       return `type-${type}`;
     },
   },
