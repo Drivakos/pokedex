@@ -1,16 +1,22 @@
 <template>
-  <div>
+  <div ref="pokemonContainer">
     <button class="filters-button" @click="toggleFilters" v-if="pokemonTypes.length > 0">Filters</button>
     <div class="pokemon-wrapper">
-      <p v-if="loading">Loading...</p>
-      <p v-else-if="error">Error: {{ error.message }}</p>
-      <div v-else class="pokemon-cards-wrapper" ref="pokemonWrapper" v-if="filteredPokemon.results.length">
-        <div v-for="(pokemon, index) in filteredPokemon.results" :key="index">
+      <div v-if="loading" class="loading-wrapper">
+        <img src="/pokeballGif.gif" alt="Loading...">
+      </div>
+      <div v-else-if="error">Error: {{ error.message }}</div>
+      <div v-else class="pokemon-cards-wrapper" ref="pokemonWrapper" v-if="filteredPokemon.length">
+        <div v-for="(pokemon, index) in displayedPokemon" :key="index">
           <pokemon-card
               :pokemon-id="pokemon.id"
               :pokemon="pokemon.name"
               :details="pokemon"
           />
+        </div>
+        <div ref="loadMoreTrigger" class="load-more-trigger"></div>
+        <div v-if="loadingMore" class="loading-wrapper">
+          <img src="/pokeballGif.gif" alt="Loading more...">
         </div>
       </div>
       <div class="filters-wrapper" :class="{ active: sidebarOpen }" v-if="pokemonTypes.length > 0">
@@ -29,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 
 interface Pokemon {
   id: number;
@@ -37,15 +43,32 @@ interface Pokemon {
   types: string[];
 }
 
+const allPokemon = ref<Pokemon[]>([]);
 const displayedPokemon = ref<Pokemon[]>([]);
 const selectedTypes = ref<string[]>([]);
 const pokemonTypes = ref<string[]>([]);
 const sidebarOpen = ref<boolean>(false);
 const loading = ref<boolean>(true);
+const loadingMore = ref<boolean>(false);
 const error = ref<Error | null>(null);
+const loadMoreTrigger = ref<HTMLElement | null>(null);
 
 const getTypeClass = (type: any) => {
   return `type-${type}`;
+};
+
+const itemsPerPage = 60;
+let currentPage = 0;
+
+const loadMorePokemon = () => {
+  if (loadingMore.value) return;
+  loadingMore.value = true;
+  const start = currentPage * itemsPerPage;
+  const end = start + itemsPerPage;
+  console.log(`Loading more Pokémon: ${start} to ${end}`);
+  displayedPokemon.value.push(...filteredPokemon.value.slice(start, end));
+  currentPage++;
+  loadingMore.value = false;
 };
 
 onMounted(async () => {
@@ -56,19 +79,33 @@ onMounted(async () => {
     }
     const data = await response.json();
     const pokemonData: Pokemon[] = data.body; // Assuming 'body' contains the array of Pokémon
-    displayedPokemon.value = pokemonData;
+    allPokemon.value = pokemonData;
 
     // Extract unique Pokémon types
     pokemonTypes.value = Array.from(new Set(pokemonData.flatMap(pokemon => pokemon.types)));
+    loadMorePokemon();
     loading.value = false;
   } catch (err) {
     error.value = err;
     loading.value = false;
   }
+
+  watch(() => loadMoreTrigger.value, (newVal) => {
+    if (newVal) {
+      console.log('Observing loadMoreTrigger');
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          console.log('Load more trigger is intersecting');
+          loadMorePokemon();
+        }
+      });
+      observer.observe(newVal);
+    }
+  }, { immediate: true });
 });
 
 const filteredPokemon = computed(() => {
-  let filtered = displayedPokemon.value;
+  let filtered = allPokemon.value;
   if (selectedTypes.value.length > 0) {
     filtered = filtered.filter(pokemon =>
         selectedTypes.value.every(selectedType =>
@@ -76,7 +113,13 @@ const filteredPokemon = computed(() => {
         )
     );
   }
-  return { results: filtered };
+  return filtered;
+});
+
+watch(filteredPokemon, () => {
+  displayedPokemon.value = [];
+  currentPage = 0;
+  loadMorePokemon();
 });
 
 function toggleFilter(type: string) {
@@ -98,33 +141,22 @@ function toggleFilters() {
 
 <style scoped>
 .pokemon-cards-wrapper {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
   gap: 20px;
-  align-items: center;
-  justify-items: center;
-  width: 100%;
-  padding-top: 1rem;
-
-  @media screen and (max-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  width: 80%;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  justify-content: center;
+  padding: 15px 0;
 
   @media screen and (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
   }
 }
 
 .pokemon-wrapper {
-  display: grid;
   width: 100%;
-  grid-template-columns: 50% 50%;
-  gap: 1rem;
-
-  @media screen and (max-width:1200px) {
-    grid-template-columns: 100%;
-    justify-content: center;
-  }
+  min-height: 30px;
 }
 
 .type-icon {
@@ -281,5 +313,25 @@ function toggleFilters() {
   justify-content: center;
   background: floralwhite;
   cursor: pointer;
+}
+
+.load-more-trigger {
+  height: 1px;
+}
+
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  position: absolute;
+  bottom: 15px;
+  right: 0;
+}
+
+.loading-wrapper img {
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
 }
 </style>

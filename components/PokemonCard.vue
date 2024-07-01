@@ -57,10 +57,10 @@ export default {
   justify-content: center;
   justify-items: center;
   height: 250px;
-  width: 140px;
+  width: clamp(140px, 10vw, 200px);
   aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: 12px;
   box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
   transition: ease all 0.3s;
 

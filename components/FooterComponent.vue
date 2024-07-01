@@ -5,9 +5,6 @@
 <template>
 <div class="header-wrapper">
   <div class="test"></div>
-  <a href="/">
-    Home
-  </a>
 </div>
 </template>
 
@@ -30,7 +27,7 @@
       margin: 0 auto;
       left: 0;
       right: 0;
-      bottom: calc(-10vw);
+      top: calc(-10vw);
       border-radius: 50%;
     }
   }
