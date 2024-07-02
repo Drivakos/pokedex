@@ -51,9 +51,7 @@
           {{ type.type.name }}
         </li>
       </ul>
-      //images
       <p>Sprites:</p>
-      {{ pokemonDetails.sprites.front_default }}
       <nuxt-img :src="pokemonDetails.sprites.front_default" :alt="pokemonDetails.name" width="100" height="100"/>
       <nuxt-img :src="pokemonDetails.sprites.back_default" :alt="pokemonDetails.name" width="100" height="100"/>
     </div>
@@ -63,31 +61,91 @@
   </div>
 </template>
 
-<script>
-export default {
-data() {
-    return {
-      pokemonDetails: null,
-      loading: true,
-    };
-  },
-  mounted() {
-    this.fetchData();
-  },
-  methods: {
-    async fetchData(params = this.$route.params) {
-      try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${params.name}`);
-        this.pokemonDetails = await response.json();
-        const pokemonDetails = this.pokemonDetails;
-        return {pokemonDetails};
-      } catch (error) {
-        console.error('Error fetching Pokémon details:', error);
-        return {pokemonDetails: null};
-      } finally {
-        this.loading = false;
-      }
-    }
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+
+interface Ability {
+  ability: {
+    name: string;
+  };
+}
+
+interface Form {
+  name: string;
+}
+
+interface GameIndex {
+  game_index: number;
+  version: {
+    name: string;
+  };
+}
+
+interface HeldItem {
+  item: {
+    name: string;
+  };
+}
+
+interface Move {
+  move: {
+    name: string;
+  };
+}
+
+interface Species {
+  name: string;
+}
+
+interface Stat {
+  base_stat: number;
+  stat: {
+    name: string;
+  };
+}
+
+interface Type {
+  type: {
+    name: string;
+  };
+}
+
+interface Sprites {
+  front_default: string;
+  back_default: string;
+}
+
+interface PokemonDetails {
+  name: string;
+  height: number;
+  weight: number;
+  base_experience: number;
+  abilities: Ability[];
+  forms: Form[];
+  game_indices: GameIndex[];
+  held_items: HeldItem[];
+  moves: Move[];
+  species: Species;
+  stats: Stat[];
+  types: Type[];
+  sprites: Sprites;
+}
+
+const pokemonDetails = ref<PokemonDetails | null>(null);
+const loading = ref<boolean>(true);
+const route = useRoute();
+
+const fetchData = async () => {
+  try {
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${route.params.name}`);
+    pokemonDetails.value = await response.json();
+  } catch (error) {
+    console.warn('Error fetching Pokémon details:', error);
+  } finally {
+    loading.value = false;
   }
 };
+
+onMounted(fetchData);
 </script>

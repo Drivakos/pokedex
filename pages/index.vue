@@ -168,7 +168,6 @@ function toggleFilters() {
   width: 66px;
   height: 66px;
   border-radius: 33px;
-
   margin-bottom: 4px;
   background: #dbdbdb;
   border: 1px solid #00000033;
