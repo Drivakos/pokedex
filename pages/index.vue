@@ -40,7 +40,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 interface Pokemon {
   id: number;
   name: string;
-  types: string[];
+  type: string[];
 }
 
 const allPokemon = ref<Pokemon[]>([]);
@@ -65,7 +65,6 @@ const loadMorePokemon = () => {
   loadingMore.value = true;
   const start = currentPage * itemsPerPage;
   const end = start + itemsPerPage;
-  console.log(`Loading more Pokémon: ${start} to ${end}`);
   displayedPokemon.value.push(...filteredPokemon.value.slice(start, end));
   currentPage++;
   loadingMore.value = false;
@@ -78,11 +77,12 @@ onMounted(async () => {
       throw new Error('Failed to fetch Pokémon data from backend');
     }
     const data = await response.json();
-    const pokemonData: Pokemon[] = data.body; // Assuming 'body' contains the array of Pokémon
+    const pokemonData: Pokemon[] = data.body;
     allPokemon.value = pokemonData;
 
-    // Extract unique Pokémon types
-    pokemonTypes.value = Array.from(new Set(pokemonData.flatMap(pokemon => pokemon.types)));
+    const typesSet = new Set(pokemonData.flatMap(pokemon => pokemon.type));
+    pokemonTypes.value = Array.from(typesSet);
+
     loadMorePokemon();
     loading.value = false;
   } catch (err) {
@@ -92,10 +92,8 @@ onMounted(async () => {
 
   watch(() => loadMoreTrigger.value, (newVal) => {
     if (newVal) {
-      console.log('Observing loadMoreTrigger');
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          console.log('Load more trigger is intersecting');
           loadMorePokemon();
         }
       });
@@ -109,7 +107,7 @@ const filteredPokemon = computed(() => {
   if (selectedTypes.value.length > 0) {
     filtered = filtered.filter(pokemon =>
         selectedTypes.value.every(selectedType =>
-            pokemon.types.includes(selectedType)
+            pokemon.type.includes(selectedType)
         )
     );
   }
@@ -128,6 +126,9 @@ function toggleFilter(type: string) {
   } else {
     selectedTypes.value.push(type);
   }
+  displayedPokemon.value = [];
+  currentPage = 0;
+  loadMorePokemon();
 }
 
 function closeFilters() {
