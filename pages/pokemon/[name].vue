@@ -57,7 +57,9 @@
     </div>
   </div>
   <div v-else>
-    <p>Loading...</p>
+    <div class="loading-wrapper">
+      <img src="/pokeballGif.gif" alt="Loading...">
+    </div>
   </div>
 </template>
 

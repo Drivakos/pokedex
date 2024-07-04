@@ -21,6 +21,7 @@
       </div>
       <div class="filters-wrapper" :class="{ active: sidebarOpen }" v-if="pokemonTypes.length > 0">
         <div class="close-button" @click="closeFilters">X</div>
+        <h2>Filter by type</h2>
         <div class="types-wrapper">
           <div v-for="type in pokemonTypes"
                :key="type" @click="toggleFilter(type)"
@@ -161,6 +162,7 @@ function toggleFilters() {
 }
 
 .type-icon {
+  box-shadow: rgba(6, 24, 44, 0.4) 0 0 0 2px, rgba(6, 24, 44, 0.65) 0 4px 6px -1px, rgba(255, 255, 255, 0.08) 0 1px 0 inset;
   -webkit-user-drag: none;
   user-select: none;
   box-sizing: border-box;
@@ -266,7 +268,7 @@ function toggleFilters() {
 .types-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 10px;
   height: fit-content;
   padding: 25px 0 25px 0;
 }
@@ -327,11 +329,11 @@ function toggleFilters() {
   position: absolute;
   bottom: 15px;
   right: 0;
-}
 
-.loading-wrapper img {
-  width: 250px;
-  height: 250px;
-  object-fit: contain;
+  img {
+    width: 100%;
+    height: 250px;
+    object-fit: contain;
+  }
 }
 </style>
