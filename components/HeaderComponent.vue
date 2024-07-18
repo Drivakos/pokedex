@@ -5,9 +5,12 @@
 <template>
 <div class="header-wrapper">
   <div class="test"></div>
-  <a href="/">
+  <nuxt-link to="/">
     Home
-  </a>
+  </nuxt-link>
+  <nuxt-link to="/login">
+    login
+  </nuxt-link>
 </div>
 </template>
 

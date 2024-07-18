@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 
+const {loggedIn, user, session, clear} = useUserSession();
 interface Pokemon {
   id: number;
   name: string;
