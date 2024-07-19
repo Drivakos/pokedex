@@ -1,5 +1,16 @@
 <script setup lang="ts">
-const { loggedIn } = useUserSession()
+const { loggedIn, clear } = useUserSession();
+
+async function logout() {
+  try {
+    await fetch('/api/auth/google/logout', {
+      method: 'POST',
+    });
+    await clear();
+  } catch (error) {
+    console.error('Error logging out:', error);
+  }
+}
 </script>
 
 <template>
@@ -18,9 +29,9 @@ const { loggedIn } = useUserSession()
       />
       <UButton
           v-else
-          to="/"
-          icon="i-heroicons-list-bullet"
-          label="Go to homepage"
+          @click="logout"
+          icon="i-heroicons-logout"
+          label="Logout"
           color="black"
       />
     </template>
