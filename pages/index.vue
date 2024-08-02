@@ -316,6 +316,7 @@ function toggleFilters() {
   justify-content: center;
   background: floralwhite;
   cursor: pointer;
+  color: black;
 }
 
 .load-more-trigger {

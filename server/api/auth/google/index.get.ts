@@ -2,7 +2,10 @@ import User from '~/server/models/User.model';
 
 export default oauth.googleEventHandler({
     config: {
-        scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+        scope: [
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/userinfo.profile'
+        ]
     },
     async onSuccess(event, { user, tokens }) {
         try {

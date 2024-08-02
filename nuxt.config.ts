@@ -7,7 +7,8 @@ export default defineNuxtConfig({
         '@nuxtjs/apollo',
         'nuxt-mongoose',
         "nuxt-auth-utils",
-        "@nuxt/ui"
+        "@nuxt/ui",
+        "@nuxtjs/robots"
     ],
     apollo: {
         clients: {
@@ -42,5 +43,12 @@ export default defineNuxtConfig({
                 clientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET
             }
         }
-    }
+    },
+    env: {
+        baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+    },
+    publicRuntimeConfig: {
+        NODE_ENV: process.env.NODE_ENV,
+    },
+    site: { indexable: false }
 })

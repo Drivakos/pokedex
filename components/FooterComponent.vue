@@ -1,12 +1,12 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
 <div class="header-wrapper">
   <div class="test"></div>
 </div>
 </template>
+
+<script setup lang="ts">
+
+</script>
 
 <style scoped>
 .header-wrapper {
@@ -23,7 +23,7 @@
       height: 15vw;
       display: block;
       position: absolute;
-      background: #fbfbfb;
+      background: #d4ecf3;
       margin: 0 auto;
       left: 0;
       right: 0;
