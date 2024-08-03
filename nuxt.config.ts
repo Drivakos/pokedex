@@ -1,5 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-// @ts-ignore - ignore TypeScript errors
 export default defineNuxtConfig({
   devtools: { enabled: true },
     modules: [
